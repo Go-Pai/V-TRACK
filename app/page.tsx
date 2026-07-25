@@ -1,65 +1,185 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useState, Suspense } from 'react';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { signIn } from 'next-auth/react';
+import { useUserStore } from '@/store/user';
+
+import { setGuestCookie } from '@/app/actions/guest';
+import { useTransition } from 'react';
+
+function LoginForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const registered = searchParams.get('registered');
+  const [isPending, startTransition] = useTransition();
+
+  const { loginAsGuest } = useUserStore();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    try {
+      const res = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      setLoading(false);
+
+      if (res?.error) {
+        setError('Invalid email or password. Please try again.');
+      } else {
+        const { updateProfile } = useUserStore.getState();
+        updateProfile({ isGuest: false });
+        startTransition(async () => {
+          const { clearGuestCookieOnly } = await import('@/app/actions/guest');
+          await clearGuestCookieOnly();
+          router.push('/dashboard');
+          router.refresh();
+        });
+      }
+    } catch (err: any) {
+      setLoading(false);
+      setError('An error occurred during sign in.');
+    }
+  };
+
+  const handleGuestLogin = () => {
+    loginAsGuest();
+    startTransition(async () => {
+      await setGuestCookie();
+      router.push('/dashboard');
+      router.refresh();
+    });
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="bg-surface-container rounded-xl border border-outline-variant p-6 md:p-10 shadow-2xl flex flex-col gap-6">
+      <div className="flex flex-col gap-2 text-center mb-4">
+        <h1 className="text-primary-container text-display-lg uppercase tracking-tight">v-track</h1>
+        <p className="text-on-surface-variant text-base">Welcome back to the high-performance zone.</p>
+      </div>
+
+      {registered && (
+        <div className="bg-primary/20 border border-primary text-primary text-sm p-3 rounded text-center">
+          Account created successfully! Please sign in below.
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+      )}
+
+      {error && (
+        <div className="bg-error-container/20 border border-error text-error text-sm p-3 rounded text-center">
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleSignIn} className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          <label className="text-on-surface text-sm font-medium" htmlFor="email">Email</label>
+          <input
+            className="w-full rounded border border-outline-variant bg-surface-container-high focus:border-primary-container focus:ring-1 focus:ring-primary-container text-on-surface placeholder:text-on-surface-variant h-12 px-4 transition-colors"
+            id="email"
+            placeholder="Enter your email"
+            required
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label className="text-on-surface text-sm font-medium" htmlFor="password">Password</label>
+          <div className="relative">
+            <input
+              className="w-full rounded border border-outline-variant bg-surface-container-high focus:border-primary-container focus:ring-1 focus:ring-primary-container text-on-surface placeholder:text-on-surface-variant h-12 px-4 pr-12 transition-colors"
+              id="password"
+              placeholder="Enter your password"
+              required
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center p-1"
+            >
+              <span className="material-symbols-outlined text-[20px]">
+                {showPassword ? 'visibility_off' : 'visibility'}
+              </span>
+            </button>
+          </div>
         </div>
-      </main>
+
+        <div className="flex justify-between items-center mt-2">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              className="rounded border-outline-variant bg-surface-container-high text-primary-container focus:ring-primary-container w-4 h-4"
+              type="checkbox"
+            />
+            <span className="text-on-surface-variant text-sm">Remember me</span>
+          </label>
+          <Link href="/forgot-password" className="text-primary-container text-sm hover:underline">
+            Forgot password?
+          </Link>
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full h-12 rounded bg-primary-container text-on-primary-container font-bold uppercase tracking-wide hover:bg-primary transition-colors mt-4 flex items-center justify-center gap-2 disabled:opacity-50"
+        >
+          {loading ? 'Signing In...' : 'Sign In'}
+          <span className="material-symbols-outlined text-[20px]">login</span>
+        </button>
+      </form>
+
+      <div className="relative flex py-4 items-center">
+        <div className="flex-grow border-t border-outline-variant"></div>
+        <span className="flex-shrink-0 mx-4 text-on-surface-variant font-label-caps text-xs">OR</span>
+        <div className="flex-grow border-t border-outline-variant"></div>
+      </div>
+
+      <div className="flex flex-col gap-4">
+        <button
+          onClick={handleGuestLogin}
+          className="w-full h-12 rounded border border-outline text-on-surface-variant font-bold hover:text-on-surface hover:border-on-surface transition-colors flex items-center justify-center gap-2"
+          type="button"
+        >
+          <span className="material-symbols-outlined text-[20px]">person_outline</span>
+          Continue as Guest
+        </button>
+      </div>
+
+      <p className="text-center text-on-surface-variant text-sm mt-2">
+        Don't have an account? <Link className="text-primary-container hover:underline" href="/signup">Sign up</Link>
+      </p>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <main className="font-body-md min-h-screen flex items-center justify-center relative overflow-hidden bg-background text-on-background">
+      {/* Animasi Kinetic Grid */}
+      <div className="absolute inset-0 kinetic-grid z-0"></div>
+
+      {/* Kontainer Form */}
+      <div className="relative z-10 w-full max-w-md px-5 md:px-0">
+        <Suspense fallback={<div className="text-center py-10 text-on-surface-variant">Loading...</div>}>
+          <LoginForm />
+        </Suspense>
+      </div>
+    </main>
   );
 }

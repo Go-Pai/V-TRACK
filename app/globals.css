@@ -1,26 +1,160 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=JetBrains+Mono:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
 @import "tailwindcss";
+@plugin "@tailwindcss/forms";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Palet Warna Custom v-track */
+  --color-background: #11150a;
+  --color-on-background: #e0e4d2;
+  --color-surface-container: #1d2116;
+  --color-outline-variant: #424936;
+  --color-primary-container: #a3e635;
+  --color-on-surface-variant: #c2cab0;
+  --color-on-surface: #e0e4d2;
+  --color-surface-container-high: #272c1f;
+  --color-on-primary-container: #416400;
+  --color-primary: #ccff80;
+  --color-surface-variant: #32362a;
+  --color-outline: #8c947c;
+
+  /* Tipografi Custom */
+  --font-body-md: "Inter", sans-serif;
+  --font-display-lg: "Inter", sans-serif;
+  --font-label-caps: "JetBrains Mono", monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer utilities {
+  .kinetic-grid {
+    background-size: 40px 40px;
+    background-image:
+      linear-gradient(to right, rgba(163, 230, 53, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(163, 230, 53, 0.05) 1px, transparent 1px);
+    animation: grid-scroll 20s linear infinite;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes grid-scroll {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 40px 40px;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    background-color: #0a0a0a;
+    border: 1px solid #1f2937;
+  }
+
+  .glass-panel:hover,
+  .glass-panel:focus-within {
+    border-color: var(--color-primary-container, #a3e635);
+  }
+
+  .btn-primary {
+    background-color: var(--color-primary-container, #a3e635);
+    color: #000000;
+  }
+
+  .btn-primary:hover {
+    opacity: 0.9;
+  }
+
+  .workout-checkbox:checked {
+    background-color: var(--color-primary-container, #a3e635) !important;
+    border-color: var(--color-primary-container, #a3e635) !important;
+    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='black' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+  }
+
+  .hide-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .bg-summary-pattern {
+    background-image:
+      linear-gradient(rgba(31, 41, 55, 0.2) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(31, 41, 55, 0.2) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@layer base {
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  details>summary {
+    list-style: none;
+  }
+
+  details>summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+}
+
+/* Custom Typography Utilities untuk Tailwind v4 */
+@utility text-display-lg {
+  font-size: 48px;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  font-weight: 900;
+}
+
+@utility text-headline-lg {
+  font-size: 32px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+}
+
+@utility text-headline-lg-mobile {
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 800;
+}
+
+@utility text-headline-md {
+  font-size: 24px;
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+@utility text-label-caps {
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+@utility text-body-lg {
+  font-size: 18px;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+@utility text-body-md {
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 400;
 }

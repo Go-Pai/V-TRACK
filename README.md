@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# V-Track (High Performance Workout Tracker)
+
+V-Track is a sleek, high-performance workout tracking application built for athletes and fitness enthusiasts. It features a modern, dark-themed UI with a focus on speed, aesthetics, and ease of use.
+
+## Features
+
+- **Guest Mode & Authentication**: Try the app instantly as a guest, or create an account to save your progress permanently using NextAuth.
+- **Active Workout Session**: Track your exercises, sets, weights, reps, and RPE in real-time. 
+- **Workout Summary & History**: View detailed summaries of your completed workouts, including total volume lifted and time elapsed.
+- **Dynamic Profile**: Manage your stats (weight, height) and profile picture.
+- **Modern UI/UX**: Built with a sleek dark aesthetic, dynamic color accents, and responsive layout.
+
+## Tech Stack
+
+- **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+- **Database**: PostgreSQL (via [Supabase](https://supabase.com/))
+- **ORM**: [Prisma](https://www.prisma.io/)
+- **Authentication**: [NextAuth.js v5 (Auth.js)](https://authjs.dev/)
+- **State Management**: [Zustand](https://zustand-demo.pmnd.rs/)
 
 ## Getting Started
 
-First, run the development server:
+First, clone the repository and install the dependencies:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Set up your environment variables by creating a `.env` file based on `.env.example` (or just add the following):
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+DATABASE_URL="your-postgresql-url-here"
+AUTH_SECRET="your-random-secret-key"
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Initialize the database:
 
-## Learn More
+```bash
+bunx prisma db push
+```
 
-To learn more about Next.js, take a look at the following resources:
+Run the development server:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+bun run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the app in action.
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The easiest way to deploy this application is using [Vercel](https://vercel.com/). 
+The `build` script in `package.json` is already configured to run `prisma generate && prisma db push && next build` to ensure the database schema is synchronized automatically during deployment.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Push your code to GitHub.
+2. Create a project in Vercel and import your repository.
+3. Add the `DATABASE_URL` and `AUTH_SECRET` environment variables.
+4. Deploy!

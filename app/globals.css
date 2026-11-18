@@ -158,3 +158,11 @@
   line-height: 1.5;
   font-weight: 400;
 }
+
+.bg-summary-pattern {
+  background-color: #000000;
+  background-image:
+    linear-gradient(rgba(31, 41, 55, 0.4) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(31, 41, 55, 0.4) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
